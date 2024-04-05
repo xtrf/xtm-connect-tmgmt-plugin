@@ -38,7 +38,7 @@ class LangConnectorTranslatorUi extends TranslatorPluginUiBase
       '#type' => 'textfield',
       '#title' => $this->t('API Url'),
       '#required' => TRUE,
-      '#default_value' => $lang_connector_translator->getTranslatorUrl(),
+      '#default_value' => $translator->getSetting('url') ?? $lang_connector_translator->getTranslatorUrl(),
     ];
 
     $form['auth_key'] = [
@@ -87,7 +87,7 @@ class LangConnectorTranslatorUi extends TranslatorPluginUiBase
       '#type' => 'radios',
       '#title' => $this->t('Format'),
       '#default_value' => 0,
-      '#options' => array(0 => $this->t('XLIFF'))
+      '#options' => array(0 => $this->t('JSON'))
     );
     return $form;
   }

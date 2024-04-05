@@ -31,7 +31,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  *   label = @Translation("Lang Connector"),
  *   description = @Translation("Lang Connector Translator service."),
  *   ui = "Drupal\tmgmt_lang_connector\LangConnectorTranslatorUi",
- *   logo = "icons/lang_connector.png"
+ *   logo = "icons/lang_connector_logo.png"
  * )
  */
 class LangConnectorTranslator extends TranslatorPluginBase implements ContainerFactoryPluginInterface, ContinuousTranslatorInterface
@@ -623,5 +623,11 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
       }
     }
     return $this->isCron;
+  }
+
+  public function applyTranslations(Job $job, $data = null)
+  {
+    $tmgmtData = \Drupal::service('tmgmt.data');
+    $job->addTranslatedData($tmgmtData->unflatten($data));
   }
 }

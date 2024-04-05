@@ -24,9 +24,12 @@ class LangConnectorController extends ControllerBase
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response to return.
    */
-  public function applyTranslations(Request $request)
+  public function applyTranslations(Request $request, $jobId)
   {
-    $jobId = $request->get('jobId');
+    $job = Job::load($jobId);
+    $requestData = json_decode($request->getContent(), true);
+    $translator_plugin = $job->getTranslatorPlugin();
+    $translator_plugin->applyTranslations($job, $requestData);
     $data = array("success" => true, "jobId" => $jobId);
     $response = new JsonResponse($data);
     return $response;
@@ -34,7 +37,6 @@ class LangConnectorController extends ControllerBase
 
   public function getJobItems(Request $request, $jobId)
   {
-    // $jobId = $request->get('jobId');
     $job = Job::load($jobId);
     $response = new JsonResponse($job->getData());
     return $response;

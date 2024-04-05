@@ -1,5 +1,5 @@
 tmgmt_lang_connector.translate:
-  path: /tmgmt_lang_connector/translate
+  path: /tmgmt_lang_connector/job/{jobId}/translate
   defaults:
     _title: 'TMGMT Lang Connector Callback'
     _controller: '\Drupal\tmgmt_lang_connector\Controller\LangConnectorController::applyTranslations'
