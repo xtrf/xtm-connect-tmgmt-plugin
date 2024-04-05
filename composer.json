@@ -1,0 +1,10 @@
+{
+  "name": "drupal/tmgmt_lang_connector",
+  "description": "TMGMT Lang Connector",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "require": {
+    "drupal/core": "^9 || ^10",
+    "drupal/tmgmt": "^1.0"
+  }
+}

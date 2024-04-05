@@ -1,0 +1,18 @@
+tmgmt_lang_connector.translate:
+  path: /tmgmt_lang_connector/translate
+  defaults:
+    _title: 'TMGMT Lang Connector Callback'
+    _controller: '\Drupal\tmgmt_lang_connector\Controller\LangConnectorController::applyTranslations'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    _auth: ['basic_auth']
+tmgmt_lang_connector.job:
+  path: /tmgmt_lang_connector/job/{jobId}/items
+  defaults:
+    _title: 'TMGMT Lang Connector Get Job Details'
+    _controller: '\Drupal\tmgmt_lang_connector\Controller\LangConnectorController::getJobItems'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    _auth: ['basic_auth']

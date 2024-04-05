@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the tmgmt_lang_connector module.
+ */
+
+/**
+ * Update schema definitions of tmgmt_lang_connector module.
+ */
+function tmgmt_lang_connector_update_8001() {
+  $config_factory = \Drupal::configFactory();
+  // Find all available tmgmt translators.
+  foreach ($config_factory->listAll('tmgmt.translator.') as $tmgmt_translator_config_name) {
+    $tmgmt_translator_config = $config_factory->getEditable($tmgmt_translator_config_name);
+    // Check for plugin lang_connector_pro and resave it's configuration.
+    if ($tmgmt_translator_config->get('plugin') == 'lang_connector_pro') {
+      $tmgmt_translator_config->save();
+    }
+  }
+}
+
+/**
+ * Re-run fixed tmgmt_lang_connector_update_8001.
+ */
+function tmgmt_lang_connector_update_8002() {
+  tmgmt_lang_connector_update_8001();
+}
+
+/**
+ * Update existing lang_connector_pro translator settings and set url/ url_usage.
+ */
+function tmgmt_lang_connector_update_8003() {
+  $config_factory = \Drupal::configFactory();
+  // Find all available tmgmt translators.
+  foreach ($config_factory->listAll('tmgmt.translator.') as $tmgmt_translator_config_name) {
+    $tmgmt_translator_config = $config_factory->getEditable($tmgmt_translator_config_name);
+    // Check for plugin lang_connector_pro and resave it's configuration with
+    // new translator/ usage url.
+    if ($tmgmt_translator_config->get('plugin') == 'lang_connector_pro') {
+      $settings = $tmgmt_translator_config->get('settings');
+      // Add translate url.
+      $settings['url'] = 'https://api.lang_connector.com/v2/translate';
+      // Add usage url.
+      $settings['url_usage'] = 'https://api.lang_connector.com/v2/usage';
+      // Set new settings.
+      $tmgmt_translator_config->set('settings', $settings);
+      // Resave settings.
+      $tmgmt_translator_config->save(TRUE);
+    }
+  }
+}

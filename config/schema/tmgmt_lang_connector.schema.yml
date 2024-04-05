@@ -1,0 +1,18 @@
+tmgmt.translator.settings.lang_connector:
+  type: tmgmt_lang_connector_settings
+
+tmgmt_lang_connector_settings:
+  type: mapping
+  mapping:
+    auto_accept:
+      type: boolean
+      label: Automatically accept
+    url:
+      type: string
+      label: Translation API endpoint url.
+    url_usage:
+      type: string
+      label: Usage API endpoint url.
+    auth_key:
+      type: string
+      label: Auth key
