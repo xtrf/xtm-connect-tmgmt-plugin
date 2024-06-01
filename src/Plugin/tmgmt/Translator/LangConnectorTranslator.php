@@ -570,24 +570,19 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
    *   - Unable to connect to the LangConnector API Service
    *   - Error returned by the LangConnector API Service.
    */
-  public function getUsageData(Translator $translator)
+  public function validateAPI(Translator $translator)
   {
     // Set custom data for testing purposes, if available.
-    $custom_usage_url = $translator->getSetting('url_usage');
-    $custom_auth_key = $translator->getSetting('auth_key');
-    /** @var string $url */
-    $url = !empty($custom_usage_url) ? $custom_usage_url : $this->getUsageUrl();
-    $auth_key = !empty($custom_auth_key) ? $custom_auth_key : $translator->getSetting('auth_key');
-
+    $url = $translator->getSetting('url');
     // Prepare Guzzle Object.
-    $request = new Request('GET', $url);
+    $headers = [
+      'Content-Type' => 'application/json',
+      'Authorization' => $translator->getSetting('auth_key'),
+    ];
+    $request = new Request('GET', $url, $headers);
 
-    // Build the query.
-    $query_string = '&auth_key=' . $auth_key;
-
-    // Send the request with the query.
     try {
-      $response = $this->client->send($request, ['query' => $query_string]);
+      $response = $this->client->send($request);
     } catch (BadResponseException $e) {
       return $e->getCode();
     }
