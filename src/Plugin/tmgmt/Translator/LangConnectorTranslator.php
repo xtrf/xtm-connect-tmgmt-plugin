@@ -345,26 +345,22 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
     $url = $translator->getSetting('url');
     // Define headers.
     $headers = [
-      'Content-Type' => 'application/x-www-form-urlencoded',
+      'Content-Type' => 'application/json',
+      'Authorization' => $translator->getSetting('auth_key'),
     ];
-    // Build the query.
-    $query_string = '&auth_key=' . $translator->getSetting('auth_key') . '&jobId=' . $jobId;
 
-    // Add source language.
-    if (isset($query_params['source_lang'])) {
-      $query_string .= '&source_lang=' . $query_params['source_lang'];
-    }
-
-    // Add target language.
-    if (isset($query_params['target_lang'])) {
-      $query_string .= '&target_lang=' . $query_params['target_lang'];
-    }
+    // build payload
+    $payload = json_encode([
+      'job_id' => $jobId,
+      'source_lang' => $query_params['source_lang'],
+      'target_lang' => $query_params['target_lang'],
+    ]);
 
     // Allow alteration of query string.
-    \Drupal::moduleHandler()->alter('tmgmt_lang_connector_query_string', $job, $query_string, $query_params);
+    \Drupal::moduleHandler()->alter('tmgmt_lang_connector_query_string', $job, $payload, $query_params);
 
     // Build request object.
-    $request = new Request('POST', $url, $headers, $query_string);
+    $request = new Request('POST', $url, $headers, json_encode($payload));
 
     // Send the request with the query.
     try {
