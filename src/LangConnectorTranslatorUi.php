@@ -68,7 +68,9 @@ class LangConnectorTranslatorUi extends TranslatorPluginUiBase
     if (!$form_state->getFormObject() instanceof EntityFormInterface) {
       return;
     }
-
+    $translator = $form_state->getFormObject()->getEntity();
+    $lang_connector_translator = $translator->getPlugin();
+    $lang_connector_translator->validateAPI($translator);
     // Reset outline_detection, if tag_handling is not set.
     $settings = $form_state->getValue('settings');
     if ($settings['tag_handling'] === '0') {
