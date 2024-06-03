@@ -579,7 +579,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
       'Content-Type' => 'application/json',
       'Authorization' => $translator->getSetting('auth_key'),
     ];
-    $request = new Request('GET', $url, $headers);
+    $request = new Request('POST', $url, $headers);
 
     try {
       $response = $this->client->send($request);
