@@ -358,7 +358,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
     \Drupal::moduleHandler()->alter('tmgmt_lang_connector_query_string', $job, $payload, $query_params);
 
     // Build request object.
-    $request = new Request('POST', $url, $headers, json_encode($payload));
+    $request = new Request('POST', $url, $headers, $payload);
 
     // Send the request with the query.
     try {
