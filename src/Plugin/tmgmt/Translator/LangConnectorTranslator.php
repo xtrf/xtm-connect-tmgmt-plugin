@@ -96,21 +96,21 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
    *
    * @var string
    */
-  protected string $translatorUrl = 'https://api.locale.to';
+  protected string $translatorUrl = '';
 
   /**
    * Translation usage service URL.
    *
    * @var string
    */
-  protected string $translatorUsageUrl = 'https://api.locale.to';
+  protected string $translatorUsageUrl = '';
 
   /**
    * Translation glossary service URL.
    *
    * @var string
    */
-  protected string $translatorGlossaryUrl = 'https://api.locale.to';
+  protected string $translatorGlossaryUrl = '';
 
   /**
    * Constructs a LangConnectorProTranslator object.
@@ -158,7 +158,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
    */
   public function checkAvailable(TranslatorInterface $translator): AvailableResult
   {
-    if ($translator->getSetting('auth_key')) {
+    if ($translator->getSetting('auth_key') && $translator->getSetting('url')) {
       return AvailableResult::yes();
     }
 
@@ -279,29 +279,6 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
     }
 
     return [];
-  }
-
-  /**
-   * Source language mapping, cause not all sources as supported as target.
-   *
-   * @param string $source_lang
-   *   The selected source language of the job item.
-   *
-   * @return string
-   *   Fixed language mapping based on LangConnector specification.
-   */
-  public static function fixSourceLanguageMappings(string $source_lang): string
-  {
-    $language_mapping = [
-      'en-GB' => 'en',
-      'en-US' => 'en',
-    ];
-
-    if (isset($language_mapping[$source_lang])) {
-      return $language_mapping[$source_lang];
-    }
-
-    return $source_lang;
   }
 
   /**
@@ -498,7 +475,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
     $translator_plugin = $job->getTranslator()->getPlugin();
 
     // Fix source language mapping.
-    $source_lang = self::fixSourceLanguageMappings($job->getRemoteSourceLanguage());
+    $source_lang = $job->getRemoteSourceLanguage();
 
     // Build query params.
     $query_params = [
