@@ -7,8 +7,3 @@ dependencies:
 configure: entity.tmgmt_translator.collection
 type: module
 php: 7.4
-
-# Information added by Drupal.org packaging script on 2024-03-21
-version: '2.2.0+2-dev'
-project: 'tmgmt_lang_connector'
-datestamp: 1711009685
