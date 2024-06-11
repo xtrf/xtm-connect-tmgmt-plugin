@@ -548,7 +548,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
   public function validateAPI(Translator $translator)
   {
     // Set custom data for testing purposes, if available.
-    $url = $translator->getSetting('url');
+    $url = rtrim($translator->getSetting('url'), '/') . '/health';
     // Prepare Guzzle Object.
     $headers = [
       'Content-Type' => 'application/json',
@@ -558,8 +558,8 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
 
     try {
       $response = $this->client->send($request);
-    } catch (BadResponseException $e) {
-      return $e->getCode();
+    } catch (\Exception $e) {
+      return false;
     }
 
     // Process the JSON result into array.
