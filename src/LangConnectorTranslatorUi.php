@@ -70,8 +70,12 @@ class LangConnectorTranslatorUi extends TranslatorPluginUiBase
     }
     $translator = $form_state->getFormObject()->getEntity();
     $lang_connector_translator = $translator->getPlugin();
-    $lang_connector_translator->validateAPI($translator);
+    $res = $lang_connector_translator->validateAPI($translator);
     // Reset outline_detection, if tag_handling is not set.
+    if ($res["success"] != "true") {
+      $form_state->setErrorByName('settings][auth_key', $this->t('Please check the url and key.'));
+      $form_state->setErrorByName('settings][url', $this->t('Please check the url and key.'));
+    }
     $settings = $form_state->getValue('settings');
     if ($settings['tag_handling'] === '0') {
       $form_state->setValueForElement($form['plugin_wrapper']['settings']['outline_detection'], 0);
