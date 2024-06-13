@@ -554,18 +554,14 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
       'Content-Type' => 'application/json',
       'Authorization' => $translator->getSetting('auth_key'),
     ];
-    $request = new Request('POST', $url, $headers);
+    $request = new Request('GET', $url, $headers);
 
     try {
       $response = $this->client->send($request);
+      return json_decode($response->getBody(), TRUE);
     } catch (\Exception $e) {
       return false;
     }
-
-    // Process the JSON result into array.
-    /** @var array $return */
-    $return = json_decode($response->getBody(), TRUE);
-    return $return;
   }
 
   /**
