@@ -38,8 +38,20 @@ class LangConnectorController extends ControllerBase
   public function getJobItems(Request $request, $jobId)
   {
     $job = Job::load($jobId);
-    $response = new JsonResponse($job->getData());
-    return $response;
+    $job_items = $job->getItems();
+    $job_item_list = [];
+    foreach ($job_items as $job_item) {
+      if (!$job_item->isActive()) continue;
+      $resource_id = $job_item->getItemId();
+      $entity = \Drupal::entityTypeManager()->getStorage("node")->load($resource_id);
+      $job_item_list[] = [
+        'resource_id' => $resource_id,
+        'resource_type' => $entity->bundle(),
+        'job_item_id' => $job_item->id(),
+        'content' => $job_item->getData(),
+      ];
+    }
+    return new JsonResponse($job_item_list);
   }
 
 }
