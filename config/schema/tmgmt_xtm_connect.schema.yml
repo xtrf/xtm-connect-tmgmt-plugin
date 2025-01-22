@@ -1,7 +1,7 @@
-tmgmt.translator.settings.lang_connector:
-  type: tmgmt_lang_connector_settings
+tmgmt.translator.settings.xtm_connect:
+  type: tmgmt_xtm_connect_settings
 
-tmgmt_lang_connector_settings:
+tmgmt_xtm_connect_settings:
   type: mapping
   mapping:
     auto_accept:

@@ -1,6 +1,6 @@
 {
-  "name": "drupal/tmgmt_lang_connector",
-  "description": "TMGMT Lang Connector",
+  "name": "drupal/tmgmt_xtm_connect",
+  "description": "TMGMT XTM Connect",
   "type": "drupal-module",
   "license": "GPL-2.0+",
   "require": {

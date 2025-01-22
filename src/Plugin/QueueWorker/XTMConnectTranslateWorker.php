@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Drupal\tmgmt_lang_connector\Plugin\QueueWorker;
+namespace Drupal\tmgmt_xtm_connect\Plugin\QueueWorker;
 
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\tmgmt_lang_connector\Plugin\tmgmt\Translator\LangConnectorTranslator;
+use Drupal\tmgmt_xtm_connect\Plugin\tmgmt\Translator\XTMConnectTranslator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  *  @QueueWorker(
- *    id = "lang_connector_translate_worker",
- *    title = @Translation("TMGMT LangConnector translate queue worker"),
+ *    id = "xtm_connect_translate_worker",
+ *    title = @Translation("TMGMT XTMConnect translate queue worker"),
  *    cron = {"time" = 120}
  *  )
  */
-class LangConnectorTranslateWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class XTMConnectTranslateWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
   use StringTranslationTrait;
 
   /**
@@ -46,7 +46,7 @@ class LangConnectorTranslateWorker extends QueueWorkerBase implements ContainerF
   /**
    * {@inheritDoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): LangConnectorTranslateWorker {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): XTMConnectTranslateWorker {
     return new static(
       $configuration,
       $plugin_id,
@@ -59,7 +59,7 @@ class LangConnectorTranslateWorker extends QueueWorkerBase implements ContainerF
    * Job item translation handler via Cron.
    *
    * @param $data
-   *   An associative array containing the following, passed from LangConnectorTranslator.
+   *   An associative array containing the following, passed from XTMConnectTranslator.
    *   [
    *     'job' => $job,
    *     'job_item' => $job,
@@ -81,9 +81,9 @@ class LangConnectorTranslateWorker extends QueueWorkerBase implements ContainerF
 
       // Simply run the regular batch operations here.
       // @todo do we still want to chunk this?
-      LangConnectorTranslator::batchRequestTranslation($job, $q, $translation, $keys_sequence, $context);
+      XTMConnectTranslator::batchRequestTranslation($job, $q, $translation, $keys_sequence, $context);
       $context['results']['job_item'] = $job_item;
-      LangConnectorTranslator::batchFinished(TRUE, $context['results'], []);
+      XTMConnectTranslator::batchFinished(TRUE, $context['results'], []);
     }
     catch (\Exception $exception) {
       $this->logger()->error($this->t(
@@ -103,7 +103,7 @@ class LangConnectorTranslateWorker extends QueueWorkerBase implements ContainerF
    */
   public function logger(): LoggerChannelInterface {
     if (empty($this->logger)) {
-      $this->logger = $this->container->get('logger.factory')->get('tmgmt_lang_connector');
+      $this->logger = $this->container->get('logger.factory')->get('tmgmt_xtm_connect');
     }
     return $this->logger;
   }

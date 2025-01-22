@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\tmgmt_lang_connector;
+namespace Drupal\tmgmt_xtm_connect;
 
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\tmgmt\JobInterface;
@@ -9,9 +9,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * LangConnector translator UI.
+ * XTMConnect translator UI.
  */
-class LangConnectorTranslatorUi extends TranslatorPluginUiBase
+class XTMConnectTranslatorUi extends TranslatorPluginUiBase
 {
 
   use StringTranslationTrait;
@@ -31,14 +31,14 @@ class LangConnectorTranslatorUi extends TranslatorPluginUiBase
     /** @var \Drupal\tmgmt\TranslatorInterface $translator */
     $translator = $form_state->getFormObject()->getEntity();
 
-    /** @var \Drupal\tmgmt_lang_connector\Plugin\tmgmt\Translator\LangConnectorTranslator $lang_connector_translator */
-    $lang_connector_translator = $translator->getPlugin();
+    /** @var \Drupal\tmgmt_xtm_connect\Plugin\tmgmt\Translator\XTMConnectTranslator $xtm_connect_translator */
+    $xtm_connect_translator = $translator->getPlugin();
 
     $form['url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('API Url'),
       '#required' => TRUE,
-      '#default_value' => $translator->getSetting('url') ?? $lang_connector_translator->getTranslatorUrl(),
+      '#default_value' => $translator->getSetting('url') ?? $xtm_connect_translator->getTranslatorUrl(),
     ];
 
     $form['auth_key'] = [
@@ -52,7 +52,7 @@ class LangConnectorTranslatorUi extends TranslatorPluginUiBase
     $form += parent::addConnectButton();
 
     // Allow alteration of buildConfigurationForm.
-    \Drupal::moduleHandler()->alter('tmgmt_lang_connector_build_configuration_form', $form, $form_state);
+    \Drupal::moduleHandler()->alter('tmgmt_xtm_connect_build_configuration_form', $form, $form_state);
 
     return $form;
   }
@@ -69,8 +69,8 @@ class LangConnectorTranslatorUi extends TranslatorPluginUiBase
       return;
     }
     $translator = $form_state->getFormObject()->getEntity();
-    $lang_connector_translator = $translator->getPlugin();
-    $res = $lang_connector_translator->validateAPI($translator);
+    $xtm_connect_translator = $translator->getPlugin();
+    $res = $xtm_connect_translator->validateAPI($translator);
     // Reset outline_detection, if tag_handling is not set.
     if ($res["data"] != "ok") {
       $form_state->setErrorByName('settings][auth_key', $this->t('Please check the url and key.'));
@@ -88,7 +88,7 @@ class LangConnectorTranslatorUi extends TranslatorPluginUiBase
   public function checkoutSettingsForm(array $form, FormStateInterface $form_state, JobInterface $job): array
   {
     // Allow alteration of checkoutSettingsForm.
-    \Drupal::moduleHandler()->alter('tmgmt_lang_connector_checkout_settings_form', $form, $job);
+    \Drupal::moduleHandler()->alter('tmgmt_xtm_connect_checkout_settings_form', $form, $job);
     $form['settings']['active'] = array(
       '#type' => 'radios',
       '#title' => $this->t('Format'),

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\tmgmt_lang_connector\Plugin\tmgmt\Translator;
+namespace Drupal\tmgmt_xtm_connect\Plugin\tmgmt\Translator;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -24,17 +24,17 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * LangConnector translator plugin.
+ * XTMConnect translator plugin.
  *
  * @TranslatorPlugin(
- *   id = "lang_connector",
- *   label = @Translation("Lang Connector"),
- *   description = @Translation("Lang Connector Translator service."),
- *   ui = "Drupal\tmgmt_lang_connector\LangConnectorTranslatorUi",
- *   logo = "icons/lang_connector_logo.png"
+ *   id = "xtm_connect",
+ *   label = @Translation("XTM Connect"),
+ *   description = @Translation("XTM Connect Translator service."),
+ *   ui = "Drupal\tmgmt_xtm_connect\XTMConnectTranslatorUi",
+ *   logo = "icons/xtm_connect_logo.png"
  * )
  */
-class LangConnectorTranslator extends TranslatorPluginBase implements ContainerFactoryPluginInterface, ContinuousTranslatorInterface
+class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFactoryPluginInterface, ContinuousTranslatorInterface
 {
 
   use StringTranslationTrait;
@@ -42,12 +42,12 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
   /**
    * {@inheritdoc}
    */
-  protected $escapeStart = '<lang_connector translate="no">';
+  protected $escapeStart = '<xtm_connect translate="no">';
 
   /**
    * {@inheritdoc}
    */
-  protected $escapeEnd = '</lang_connector>';
+  protected $escapeEnd = '</xtm_connect>';
 
   /**
    * Name of parameter that contains source string to be translated.
@@ -113,7 +113,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
   protected string $translatorGlossaryUrl = '';
 
   /**
-   * Constructs a LangConnectorProTranslator object.
+   * Constructs a XTMConnectProTranslator object.
    *
    * @param \GuzzleHttp\ClientInterface $client
    *   The Guzzle HTTP client.
@@ -146,7 +146,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
     return new static(
       $container->get('http_client'),
       $container->get('tmgmt.data'),
-      $container->get('queue')->get('lang_connector_translate_worker', TRUE),
+      $container->get('queue')->get('xtm_connect_translate_worker', TRUE),
       $configuration,
       $plugin_id,
       $plugin_definition
@@ -290,13 +290,13 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
     $has_checkout_settings = FALSE;
 
     // Allow alteration of hasCheckoutSettings.
-    \Drupal::moduleHandler()->alter('tmgmt_lang_connector_has_checkout_settings', $has_checkout_settings, $job);
+    \Drupal::moduleHandler()->alter('tmgmt_xtm_connect_has_checkout_settings', $has_checkout_settings, $job);
 
     return $has_checkout_settings;
   }
 
   /**
-   * Local method to do request to LangConnector Translate service.
+   * Local method to do request to XTMConnect Translate service.
    *
    * @param \Drupal\tmgmt\Entity\Job $job
    *   TMGMT Job to be used for translation.
@@ -306,11 +306,11 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
    *   (Optional) Additional options that will passed to drupal_http_request().
    *
    * @return array
-   *   Unserialized JSON response from LangConnector API.
+   *   Unserialized JSON response from XTMConnect API.
    *
    * @throws \Drupal\tmgmt\TMGMTException|\GuzzleHttp\Exception\GuzzleException
-   *   - Unable to connect to the LangConnector API Service
-   *   - Error returned by the LangConnector API Service.
+   *   - Unable to connect to the XTMConnect API Service
+   *   - Error returned by the XTMConnect API Service.
    */
   protected static function doRequest(Job $job, array $query_params = [], array $options = []): array
   {
@@ -332,7 +332,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
     ]);
 
     // Allow alteration of query string.
-    \Drupal::moduleHandler()->alter('tmgmt_lang_connector_query_string', $job, $payload, $query_params);
+    \Drupal::moduleHandler()->alter('tmgmt_xtm_connect_query_string', $job, $payload, $query_params);
 
     // Build request object.
     $request = new Request('POST', $url, $headers, $payload);
@@ -344,10 +344,10 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
       if ($e->hasResponse()) {
         $response = $e->getResponse();
         if ($response instanceof ResponseInterface) {
-          throw new TMGMTException('LangConnector API service returned following error: @error', ['@error' => $response->getReasonPhrase()]);
+          throw new TMGMTException('XTMConnect API service returned following error: @error', ['@error' => $response->getReasonPhrase()]);
         }
       } else {
-        throw new TMGMTException('LangConnector API service returned following error: @error', ['@error' => $e->getMessage()]);
+        throw new TMGMTException('XTMConnect API service returned following error: @error', ['@error' => $e->getMessage()]);
       }
     }
 
@@ -408,7 +408,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
       $q = [];
       $keys_sequence = [];
 
-      // Build LangConnector API q param and preserve initial array keys.
+      // Build XTMConnect API q param and preserve initial array keys.
       foreach ($data as $key => $value) {
         $q[] = $this->escapeText($value);
         $keys_sequence[] = $key;
@@ -427,7 +427,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
         $operations = [];
         $batch = [
           'title' => 'Translating job items',
-          'finished' => [LangConnectorTranslator::class, 'batchFinished'],
+          'finished' => [XTMConnectTranslator::class, 'batchFinished'],
         ];
 
         // Split $q into chunks of self::qChunkSize.
@@ -435,7 +435,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
           // Build operations array.
           $arg_array = [$job, $_q, $translation, $keys_sequence];
           $operations[] = [
-            '\Drupal\tmgmt_lang_connector\Plugin\tmgmt\Translator\LangConnectorTranslator::batchRequestTranslation',
+            '\Drupal\tmgmt_xtm_connect\Plugin\tmgmt\Translator\XTMConnectTranslator::batchRequestTranslation',
             $arg_array,
           ];
         }
@@ -443,7 +443,7 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
         // Add beforeBatchFinished operation.
         $arg2_array = [$job_item];
         $operations[] = [
-          '\Drupal\tmgmt_lang_connector\Plugin\tmgmt\Translator\LangConnectorTranslator::beforeBatchFinished',
+          '\Drupal\tmgmt_xtm_connect\Plugin\tmgmt\Translator\XTMConnectTranslator::beforeBatchFinished',
           $arg2_array,
         ];
         // Set batch operations.
@@ -538,17 +538,17 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
   }
 
   /**
-   * Local method to do request to LangConnector API Usage service.
+   * Local method to do request to XTMConnect API Usage service.
    *
    * @param \Drupal\tmgmt\Entity\Translator $translator
    *   The translator entity to get the settings from.
    *
    * @return array|int
-   *   Unserialized JSON response from LangConnector API or error code.
+   *   Unserialized JSON response from XTMConnect API or error code.
    *
    * @throws \GuzzleHttp\Exception\BadResponseException|\GuzzleHttp\Exception\GuzzleException
-   *   - Unable to connect to the LangConnector API Service
-   *   - Error returned by the LangConnector API Service.
+   *   - Unable to connect to the XTMConnect API Service
+   *   - Error returned by the XTMConnect API Service.
    */
   public function validateAPI(Translator $translator)
   {

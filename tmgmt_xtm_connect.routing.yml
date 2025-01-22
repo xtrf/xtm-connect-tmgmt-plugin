@@ -1,0 +1,18 @@
+tmgmt_xtm_connect.translate:
+  path: /tmgmt_xtm_connect/job/{jobId}/translate
+  defaults:
+    _title: 'TMGMT XTM Connect Callback'
+    _controller: '\Drupal\tmgmt_xtm_connect\Controller\XTMConnectController::applyTranslations'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    _auth: ['basic_auth']
+tmgmt_xtm_connect.job:
+  path: /tmgmt_xtm_connect/job/{jobId}/items
+  defaults:
+    _title: 'TMGMT XTM Connect Get Job Details'
+    _controller: '\Drupal\tmgmt_xtm_connect\Controller\XTMConnectController::getJobItems'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    _auth: ['basic_auth']
