@@ -353,9 +353,14 @@ class LangConnectorTranslator extends TranslatorPluginBase implements ContainerF
 
     // Process the JSON result into array.
     if ($response instanceof ResponseInterface) {
-      /** @var array $return */
-      $return = json_decode($response->getBody(), TRUE);
-      return $return;
+      $statusCode = $response->getStatusCode();
+      if ($statusCode === 204) {
+        // Return empty array if 204 (No Content) response.
+        return ['translations' => []];
+      } else {
+        $return = json_decode($response->getBody(), TRUE);
+        return $return;
+      }
     }
     return ['translations' => []];
   }
