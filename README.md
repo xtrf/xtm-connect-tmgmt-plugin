@@ -1,7 +1,7 @@
-## TMGMT LangConnector (tmgmt_lang_connector)
+## TMGMT XTMConnect (tmgmt_xtm_connect)
 
-TMGMT LangConnector module is a plugin for Translation Management Tool module (tmgmt).
-It uses the LangConnector API for automated translation of the content.
+TMGMT XTMConnect module is a plugin for Translation Management Tool module (tmgmt).
+It uses the XTMConnect API for automated translation of the content.
 REQUIREMENTS
 
 ---
@@ -12,5 +12,5 @@ installed.
 ## CONFIGURATION
 
 - add a new translation provider at /admin/tmgmt/translators
-- choose between "LangConnector" and enter your API key
-- set additional settings related to the LangConnector API
+- choose between "XTMConnect" and enter your API key
+- set additional settings related to the XTMConnect API

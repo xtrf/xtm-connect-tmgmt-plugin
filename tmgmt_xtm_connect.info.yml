@@ -1,5 +1,5 @@
-name: 'Lang Connector'
-description: 'TMGMT implementation of Lang Connector Service.'
+name: 'XTM Connect'
+description: 'TMGMT implementation of XTM Connect Service.'
 package: 'Translation Management'
 core_version_requirement: ^9  || ^10
 dependencies:

@@ -1,9 +1,9 @@
 <?php /**
   * @file
-  * Contains \Drupal\tmgmt_lang_connector\Controller\LangConnectorController.
+  * Contains \Drupal\tmgmt_xtm_connect\Controller\XTMConnectController.
   */
 
-namespace Drupal\tmgmt_lang_connector\Controller;
+namespace Drupal\tmgmt_xtm_connect\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,12 +11,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\tmgmt\Entity\Job;
 
 /**
- * Route controller class for the tmgmt_lang_connector module.
+ * Route controller class for the tmgmt_xtm_connect module.
  */
-class LangConnectorController extends ControllerBase
+class XTMConnectController extends ControllerBase
 {
   /**
-   * Provides a callback function for tmgmt_lang_connector translator.
+   * Provides a callback function for tmgmt_xtm_connect translator.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request to handle.
