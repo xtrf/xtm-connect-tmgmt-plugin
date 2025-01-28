@@ -31,7 +31,8 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  *   label = @Translation("XTM Connect"),
  *   description = @Translation("XTM Connect Translator service."),
  *   ui = "Drupal\tmgmt_xtm_connect\XTMConnectTranslatorUi",
- *   logo = "icons/xtm_connect_logo.png"
+ *   logo = "icons/xtm_connect_logo.png",
+ *   map_remote_languages = FALSE
  * )
  */
 class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFactoryPluginInterface, ContinuousTranslatorInterface
@@ -177,108 +178,6 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
     if (!$job->isRejected()) {
       $job->submitted('The translation job has been submitted.');
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultRemoteLanguagesMappings(): array
-  {
-    return [
-      'ar' => 'ar',
-      'bg' => 'bg',
-      'cs' => 'cs',
-      'da' => 'da',
-      'de' => 'de',
-      'el' => 'el',
-      'en' => 'en',
-      'es' => 'es',
-      'et' => 'et',
-      'fi' => 'fi',
-      'fr' => 'fr',
-      'hu' => 'hu',
-      'id' => 'id',
-      'it' => 'it',
-      'ja' => 'ja',
-      'ko' => 'ko',
-      'lt' => 'lt',
-      'lv' => 'lv',
-      'nb' => 'nb',
-      'nl' => 'nl',
-      'pl' => 'pl',
-      'pt-br' => 'pt-BR',
-      'pt-pt' => 'pt-BR',
-      'ro' => 'ro',
-      'ru' => 'ru',
-      'sk' => 'sk',
-      'sl' => 'sl',
-      'sv' => 'sv',
-      'tr' => 'tr',
-      'uk' => 'uk',
-      'zh' => 'zh',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSupportedRemoteLanguages(TranslatorInterface $translator): array
-  {
-    // Pre-defined array of available languages.
-    return [
-      'ar' => $this->t('Arabic'),
-      'bg' => $this->t('Bulgarian'),
-      'cs' => $this->t('Czech'),
-      'da' => $this->t('Danish'),
-      'de' => $this->t('German'),
-      'el' => $this->t('Greek'),
-      'en-GB' => $this->t('English (British)'),
-      'en-US' => $this->t('English (American)'),
-      'en' => $this->t('English'),
-      'es' => $this->t('Spanish'),
-      'et' => $this->t('Estonian'),
-      'fi' => $this->t('Finnish'),
-      'fr' => $this->t('French'),
-      'hu' => $this->t('Hungarian'),
-      'id' => $this->t('Indonesian'),
-      'it' => $this->t('Italian'),
-      'ja' => $this->t('Japanese'),
-      'ko' => $this->t('Korean'),
-      'lt' => $this->t('Lithuanian'),
-      'lv' => $this->t('Latvian'),
-      'nb' => $this->t('Norwegian (Bokmål)'),
-      'nl' => $this->t('Dutch'),
-      'pl' => $this->t('Polish'),
-      'pt-PT' => $this->t('Portuguese (excluding Brazilian Portuguese)'),
-      'pt-BR' => $this->t('Portuguese (Brazilian)'),
-      'pt' => $this->t('Portuguese (deprecated, select PT-PT or PT-BR instead)'),
-      'ro' => $this->t('Romanian'),
-      'ru' => $this->t('Russian'),
-      'sk' => $this->t('Slovak'),
-      'sl' => $this->t('Slovenian'),
-      'sv' => $this->t('Swedish'),
-      'tr' => $this->t('Turkish'),
-      'uk' => $this->t('Ukrainian'),
-      'zh' => $this->t('Chinese (simplified)'),
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSupportedTargetLanguages(TranslatorInterface $translator, $source_language): array
-  {
-    $languages = $this->getSupportedRemoteLanguages($translator);
-
-    // There are no language pairs, any supported language can be translated
-    // into the others. If the source language is part of the languages,
-    // then return them all, just remove the source language.
-    if (array_key_exists($source_language, $languages)) {
-      unset($languages[$source_language]);
-      return $languages;
-    }
-
-    return [];
   }
 
   /**

@@ -47,7 +47,6 @@ class XTMConnectTranslatorUi extends TranslatorPluginUiBase
       '#required' => TRUE,
       '#default_value' => $translator->getSetting('auth_key'),
     ];
-
     // Add 'connect' button for testing valid key.
     $form += parent::addConnectButton();
 
