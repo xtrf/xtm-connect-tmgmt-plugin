@@ -4,6 +4,7 @@ package: 'Translation Management'
 core_version_requirement: ^9  || ^10
 dependencies:
   - tmgmt:tmgmt
+  - drupal:basic_auth
 configure: entity.tmgmt_translator.collection
 type: module
 php: 7.4
