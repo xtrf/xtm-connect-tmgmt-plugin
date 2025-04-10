@@ -18,7 +18,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *    cron = {"time" = 120}
  *  )
  */
-class XTMConnectTranslateWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class XTMConnectTranslateWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface
+{
   use StringTranslationTrait;
 
   /**
@@ -38,7 +39,8 @@ class XTMConnectTranslateWorker extends QueueWorkerBase implements ContainerFact
   /**
    * {@inheritDoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContainerInterface $container) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContainerInterface $container)
+  {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->container = $container;
   }
@@ -46,7 +48,8 @@ class XTMConnectTranslateWorker extends QueueWorkerBase implements ContainerFact
   /**
    * {@inheritDoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): XTMConnectTranslateWorker {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): XTMConnectTranslateWorker
+  {
     return new static(
       $configuration,
       $plugin_id,
@@ -70,26 +73,17 @@ class XTMConnectTranslateWorker extends QueueWorkerBase implements ContainerFact
    *
    * @return void
    */
-  public function processItem($data): void {
+  public function processItem($data): void
+  {
     try {
       $context = [];
       $job = $data['job'];
-      $job_item = $data['job_item'];
-      $q = $data['q'];
-      $translation = $data['translation'];
-      $keys_sequence = $data['keys_sequence'];
-
-      // Simply run the regular batch operations here.
-      // @todo do we still want to chunk this?
-      XTMConnectTranslator::batchRequestTranslation($job, $q, $translation, $keys_sequence, $context);
-      $context['results']['job_item'] = $job_item;
-      XTMConnectTranslator::batchFinished(TRUE, $context['results'], []);
-    }
-    catch (\Exception $exception) {
+      XTMConnectTranslator::batchRequestTranslation($job, $context);
+    } catch (\Exception $exception) {
       $this->logger()->error($this->t(
-        'Unable to translate job item: @id, the following exception was thrown: @message',
+        'Unable to translate job: @id, the following exception was thrown: @message',
         [
-          '@id' => $job_item->id(),
+          '@id' => $job->id(),
           '@message' => $exception->getMessage()
         ],
       ));
@@ -101,7 +95,8 @@ class XTMConnectTranslateWorker extends QueueWorkerBase implements ContainerFact
    *
    * @return \Drupal\Core\Logger\LoggerChannelInterface
    */
-  public function logger(): LoggerChannelInterface {
+  public function logger(): LoggerChannelInterface
+  {
     if (empty($this->logger)) {
       $this->logger = $this->container->get('logger.factory')->get('tmgmt_xtm_connect');
     }

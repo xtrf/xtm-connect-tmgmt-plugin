@@ -57,12 +57,6 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
    */
   protected static string $qParamName = 'text';
 
-  /**
-   * Max number of text queries for translation sent in one request.
-   *
-   * @var int
-   */
-  protected int $qChunkSize = 5;
 
   /**
    * Guzzle HTTP client.
@@ -174,7 +168,7 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
    */
   public function requestTranslation(JobInterface $job): void
   {
-    $this->requestJobItemsTranslation($job->getItems());
+    $this->sendJobForTranslation($job);
     if (!$job->isRejected()) {
       $job->submitted('The translation job has been submitted.');
     }
@@ -225,9 +219,8 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
 
     // build payload
     $payload = json_encode([
-      'job_id' => $jobId,
-      'source_lang' => $query_params['source_lang'],
-      'target_lang' => $query_params['target_lang'],
+      'jobs' => $query_params["jobs"],
+      'batch_id' => $query_params['batch_id'],
     ]);
 
     // Allow alteration of query string.
@@ -291,67 +284,65 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
   /**
    * {@inheritdoc}
    */
+  public function sendJobForTranslation(Job $job): void
+  {
+    /** @var \Drupal\tmgmt\Entity\Job $job */
+    if ($job->getSetting('processed') && !$job->isContinuous()) {
+      return;
+    }
+
+    $batch_id = $job->getSetting('batch_id');
+    $rawJobs = \Drupal::entityQuery('tmgmt_job')
+      ->condition('settings', $batch_id, 'CONTAINS')
+      ->sort('tjid', 'DESC')
+      ->accessCheck(FALSE)
+      ->execute();
+
+    $settings['batch_id'] = $batch_id;
+    $settings['processed'] = true;
+
+    $sibling_jobs = Job::loadMultiple($rawJobs);
+    foreach ($sibling_jobs as $sibling_job) {
+      $sibling_job->set('settings', $settings);
+    }
+
+    // Set batch operations.
+    $batch = [
+      'operations' => [
+        [
+          [self::class, 'batchRequestTranslation'],
+          [$job]
+        ]
+      ],
+      'title' => t('Processing translation request'),
+      'init_message' => t('Starting translation request.'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('Translation request has encountered an error.')
+    ];
+    batch_set($batch);
+  }
+
   public function requestJobItemsTranslation(array $job_items): void
   {
-    $job_item = reset($job_items);
-    if ($job_item instanceof JobItemInterface) {
-      /** @var \Drupal\tmgmt\Entity\Job $job */
+    if (empty($job_items)) {
+      return;
+    }
+    foreach ($job_items as $job_item) {
       $job = $job_item->getJob();
       if ($job->isContinuous()) {
         $job_item->active();
       }
-      // Pull the source data array through the job and flatten it.
-      $data = $this->tmgmtData->filterTranslatable($job_item->getData());
-
-      $translation = [];
-      $q = [];
-      $keys_sequence = [];
-
-      // Build XTMConnect API q param and preserve initial array keys.
-      foreach ($data as $key => $value) {
-        $q[] = $this->escapeText($value);
-        $keys_sequence[] = $key;
-      }
-
-      // Use the Queue Worker if running via tmgmt_cron.
-      if ($this->isCron()) {
-        $this->queue->createItem([
-          'job' => $job,
-          'job_item' => $job_item,
-          'q' => $q,
-          'translation' => $translation,
-          'keys_sequence' => $keys_sequence,
-        ]);
-      } else {
-        $operations = [];
-        $batch = [
-          'title' => 'Translating job items',
-          'finished' => [XTMConnectTranslator::class, 'batchFinished'],
-        ];
-
-        // Split $q into chunks of self::qChunkSize.
-        foreach (array_chunk($q, $this->qChunkSize) as $_q) {
-          // Build operations array.
-          $arg_array = [$job, $_q, $translation, $keys_sequence];
-          $operations[] = [
-            '\Drupal\tmgmt_xtm_connect\Plugin\tmgmt\Translator\XTMConnectTranslator::batchRequestTranslation',
-            $arg_array,
-          ];
-        }
-
-        // Add beforeBatchFinished operation.
-        $arg2_array = [$job_item];
-        $operations[] = [
-          '\Drupal\tmgmt_xtm_connect\Plugin\tmgmt\Translator\XTMConnectTranslator::beforeBatchFinished',
-          $arg2_array,
-        ];
-        // Set batch operations.
-        $batch['operations'] = $operations;
-        batch_set($batch);
-      }
     }
-  }
 
+    if ($this->isCron()) {
+      $this->queue->createItem([
+        'job' => $job,
+      ]);
+    } else {
+      $this->sendJobForTranslation($job);
+    }
+
+  }
   /**
    * Batch 'operation' callback for requesting translation.
    *
@@ -366,75 +357,40 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
    * @param array $context
    *   The sandbox context.
    */
-  public static function batchRequestTranslation(Job $job, array $text, array $translation, array $keys_sequence, array &$context): void
+  public static function batchRequestTranslation(Job $job, array &$context): void
   {
-    // Context handling.
-    if (isset($context['results']) && isset($context['results']['i']) && $context['results']['i'] != NULL) {
-      $i = $context['results']['i'];
-    } else {
-      $i = 0;
+
+    $batch_id = $job->getSetting('batch_id');
+    $rawJobs = \Drupal::entityQuery('tmgmt_job')
+      ->condition('settings', $batch_id, 'CONTAINS')
+      ->sort('tjid', 'DESC')
+      ->accessCheck(FALSE)
+      ->execute();
+
+    $sibling_jobs = Job::loadMultiple($rawJobs);
+    $jobs = [];
+
+    foreach ($sibling_jobs as $sibling_job) {
+      $jobItems = $sibling_job->getItems();
+      if (count($jobItems) > 0) {
+        $jobs[] = array(
+          'job_id' => $sibling_job->id(),
+          'source_lang' => $sibling_job->getRemoteSourceLanguage(),
+          'target_lang' => $sibling_job->getRemoteTargetLanguage(),
+        );
+      }
     }
-
-    // Get the translator.
-    $translator_plugin = $job->getTranslator()->getPlugin();
-
-    // Fix source language mapping.
-    $source_lang = $job->getRemoteSourceLanguage();
 
     // Build query params.
     $query_params = [
-      'source_lang' => $source_lang,
-      'target_lang' => $job->getRemoteTargetLanguage(),
-      'text' => $text,
+      'jobs' => $jobs,
+      'batch_id' => $batch_id,
     ];
-    $result = self::doRequest($job, $query_params);
-    // Collect translated texts with use of initial keys.
-    foreach ($result['translations'] as $translated) {
-      $translation[$keys_sequence[$i]]['#text'] = $translator_plugin->unescapeText(rawurldecode(Html::decodeEntities($translated['text'])));
-      $i++;
-    }
-    if (isset($context['results']) && isset($context['results']['translation']) && $context['results']['translation'] != NULL) {
-      $context['results']['translation'] = array_merge($context['results']['translation'], $translation);
-    } else {
-      $context['results']['translation'] = $translation;
-    }
-    $context['results']['i'] = $i;
+
+    self::doRequest($job, $query_params);
+
   }
 
-  /**
-   * Batch 'operation' callback.
-   *
-   * @param \Drupal\tmgmt\JobItemInterface $job_item
-   *   The job item.
-   * @param array $context
-   *   The sandbox context.
-   */
-  public static function beforeBatchFinished(JobItemInterface $job_item, &$context): void
-  {
-    $context['results']['job_item'] = $job_item;
-  }
-
-  /**
-   * Batch 'operation' callback.
-   *
-   * @param bool $success
-   *   Batch success.
-   * @param array $results
-   *   Results.
-   * @param array $operations
-   *   Operations.
-   */
-  public static function batchFinished(bool $success, array $results, array $operations): void
-  {
-    $tmgmtData = \Drupal::service('tmgmt.data');
-
-    if (isset($results['job_item']) && $results['job_item'] instanceof JobItemInterface) {
-      $job_item = $results['job_item'];
-      $job_item->addTranslatedData($tmgmtData->unflatten($results['translation']));
-      $job = $job_item->getJob();
-      tmgmt_write_request_messages($job);
-    }
-  }
 
   /**
    * Local method to do request to XTMConnect API Usage service.
@@ -495,5 +451,17 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
   {
     $tmgmtData = \Drupal::service('tmgmt.data');
     $job->addTranslatedData($tmgmtData->unflatten($data));
+  }
+
+  /**
+   * Batch 'finished' callback.
+   */
+  public static function batchFinished($success, $results, $operations)
+  {
+    if ($success) {
+      \Drupal::messenger()->addMessage(t('Translation request processed successfully.'));
+    } else {
+      \Drupal::messenger()->addError(t('Translation request failed to process. Please check the logs for more information.'));
+    }
   }
 }
