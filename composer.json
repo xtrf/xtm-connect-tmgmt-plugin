@@ -5,6 +5,7 @@
   "license": "GPL-2.0+",
   "require": {
     "drupal/core": "^9 || ^10",
-    "drupal/tmgmt": "^1.0"
+    "drupal/tmgmt": "^1.0",
+    "drupal/tmgmt_file": "^8.0"
   }
 }

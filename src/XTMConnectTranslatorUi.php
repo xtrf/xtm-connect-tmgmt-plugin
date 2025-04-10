@@ -88,13 +88,20 @@ class XTMConnectTranslatorUi extends TranslatorPluginUiBase
   {
     // Allow alteration of checkoutSettingsForm.
     \Drupal::moduleHandler()->alter('tmgmt_xtm_connect_checkout_settings_form', $form, $job);
-    $form['settings']['active'] = array(
+    $settings['format'] = array(
       '#type' => 'radios',
       '#title' => $this->t('Format'),
       '#default_value' => 0,
       '#options' => array(0 => $this->t('JSON'))
     );
-    return $form;
+
+    $settings['batch_id'] = array(
+      '#type' => 'hidden',
+      '#title' => $this->t('Batch ID'),
+      '#default_value' => uniqid("xtm_batch_"),
+    );
+    $job->set('settings', $settings);
+    return $settings;
   }
 
 }
