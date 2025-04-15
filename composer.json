@@ -3,6 +3,7 @@
   "description": "TMGMT XTM Connect",
   "type": "drupal-module",
   "license": "GPL-2.0+",
+  "version": "1.1.0",
   "require": {
     "drupal/core": "^9 || ^10",
     "drupal/tmgmt": "^1.0",
