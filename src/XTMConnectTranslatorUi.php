@@ -71,7 +71,7 @@ class XTMConnectTranslatorUi extends TranslatorPluginUiBase
     $xtm_connect_translator = $translator->getPlugin();
     $res = $xtm_connect_translator->validateAPI($translator);
     // Reset outline_detection, if tag_handling is not set.
-    if ($res["data"] != "ok") {
+    if (!isset($res["id"])) {
       $form_state->setErrorByName('settings][auth_key', $this->t('Please check the url and key.'));
       $form_state->setErrorByName('settings][url', $this->t('Please check the url and key.'));
     }
@@ -88,11 +88,34 @@ class XTMConnectTranslatorUi extends TranslatorPluginUiBase
   {
     // Allow alteration of checkoutSettingsForm.
     \Drupal::moduleHandler()->alter('tmgmt_xtm_connect_checkout_settings_form', $form, $job);
-    $settings['format'] = array(
-      '#type' => 'radios',
-      '#title' => $this->t('Format'),
-      '#default_value' => 0,
-      '#options' => array(0 => $this->t('JSON'))
+
+    // Get the translator entity and plugin
+    $translator = $job->getTranslator();
+    $xtm_connect_translator = $translator->getPlugin();
+
+    // Fetch workflows from the API
+    $workflows = [];
+    try {
+      $workflows = $xtm_connect_translator->getWorkflows($translator);
+    } catch (\Exception $e) {
+      \Drupal::messenger()->addError($this->t('Failed to fetch workflows: @message', ['@message' => $e->getMessage()]));
+    }
+
+    // Build workflow options for the select element
+    $workflowOptions = [];
+    foreach ($workflows as $workflow) {
+      if (isset($workflow['id']) && isset($workflow['name'])) {
+        $workflowOptions[json_encode($workflow)] = $workflow['name'];
+      }
+    }
+
+    // Add workflow selection to settings
+    $settings['workflow'] = array(
+      '#title' => $this->t('Workflow'),
+      '#type' => 'select',
+      '#options' => $workflowOptions,
+      '#empty_option' => $this->t('- Select Workflow -'),
+      '#required' => true,
     );
 
     $settings['batch_id'] = array(

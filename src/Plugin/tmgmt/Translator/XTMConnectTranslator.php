@@ -209,8 +209,18 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
   {
     // Get translator of job.
     $translator = $job->getTranslator();
-    $jobId = $job->id();
-    $url = $translator->getSetting('url');
+
+    $workflow = json_decode($job->getSetting('workflow'), TRUE);
+    $webhook_id = $workflow['webhooks'][0]['id'];
+
+
+    // Extract base URL (scheme + host)
+    $plugin_url = $translator->getSetting('url');
+    $parsed_plugin_url = parse_url($plugin_url);
+    $plugin_base_url = $parsed_plugin_url['scheme'] . '://' . $parsed_plugin_url['host'];
+    $plugin_base_url = rtrim($plugin_base_url, '/');
+    $url = $plugin_base_url . "/api/v1/webhooks/" . $webhook_id;
+
     // Define headers.
     $headers = [
       'Content-Type' => 'application/json',
@@ -300,6 +310,7 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
 
     $settings['batch_id'] = $batch_id;
     $settings['processed'] = true;
+    $settings['workflow'] = $job->getSetting('workflow');
 
     $sibling_jobs = Job::loadMultiple($rawJobs);
     foreach ($sibling_jobs as $sibling_job) {
@@ -408,7 +419,7 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
   public function validateAPI(Translator $translator)
   {
     // Set custom data for testing purposes, if available.
-    $url = rtrim($translator->getSetting('url'), '/') . '/health';
+    $url = rtrim($translator->getSetting('url'), '/');
     // Prepare Guzzle Object.
     $headers = [
       'Content-Type' => 'application/json',
@@ -421,6 +432,25 @@ class XTMConnectTranslator extends TranslatorPluginBase implements ContainerFact
       return json_decode($response->getBody(), TRUE);
     } catch (\Exception $e) {
       return false;
+    }
+  }
+
+  public function getWorkflows(Translator $translator)
+  {
+    $url = rtrim($translator->getSetting('url'), '/') . '/workflows';
+    // Prepare Guzzle Object.
+    $headers = [
+      'Content-Type' => 'application/json',
+      'Authorization' => $translator->getSetting('auth_key'),
+    ];
+    $request = new Request('GET', $url, $headers);
+
+    try {
+      $response = $this->client->send($request);
+      $data = json_decode($response->getBody(), TRUE);
+      return $data['workflows'] ?? [];
+    } catch (\Exception $e) {
+      return [];
     }
   }
 
