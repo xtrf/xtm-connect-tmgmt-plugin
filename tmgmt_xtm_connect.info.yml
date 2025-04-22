@@ -1,6 +1,6 @@
-name: 'XTM Connect'
-description: 'TMGMT implementation of XTM Connect Service.'
-package: 'Translation Management'
+name: "XTM Connect Translator"
+description: "Localize Drupal websites with XTM services."
+package: "Translation Management"
 core_version_requirement: ^9 || ^10 || ^11
 version: 1.2.2
 dependencies:
