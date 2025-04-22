@@ -1,10 +1,9 @@
 {
   "name": "drupal/tmgmt_xtm_connect",
-  "description": "TMGMT XTM Connect",
+  "description": "XTM Connect TMGMT plugin",
   "type": "drupal-module",
   "license": "GPL-2.0+",
   "require": {
-    "drupal/core": "^9 || ^10 || ^11",
     "drupal/tmgmt": "^1.0"
   }
 }
