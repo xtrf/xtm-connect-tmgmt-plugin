@@ -2,6 +2,7 @@ name: 'XTM Connect'
 description: 'TMGMT implementation of XTM Connect Service.'
 package: 'Translation Management'
 core_version_requirement: ^9  || ^10
+version: 1.2.1
 dependencies:
   - tmgmt:tmgmt
   - drupal:basic_auth
