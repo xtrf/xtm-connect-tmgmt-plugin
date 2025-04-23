@@ -1,3 +1,8 @@
+
+
+> [!WARNING]
+> Project has moved to the official Drupal repositories https://git.drupalcode.org/project/tmgmt_xtm_connect
+
 ## TMGMT XTMConnect (tmgmt_xtm_connect)
 
 TMGMT XTMConnect module is a plugin for Translation Management Tool module (tmgmt).
